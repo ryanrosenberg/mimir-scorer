@@ -27,7 +27,7 @@
 	let questions_per_player = 3;
 	let total_questions = num_rounds * num_players * questions_per_player;
 	let game_active = -1;
-	let collapsed = false;
+	let disabled = false;
 
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
@@ -272,7 +272,7 @@
 
 	function startGame() {
 		game_active = 1;
-		collapsed = true;
+		disabled = true;
 	}
 
 	function endGame() {
@@ -285,26 +285,7 @@
 	<span class="title">MIMIR Scorer</span>
 	<div class="title-line" />
 </div>
-<div class="game-settings" class:collapsed>
-	<div class="player-name-parameters">
-		<div><span>Player 1: </span><input bind:value={player1} /></div>
-		<div><span>Player 2: </span><input bind:value={player2} /></div>
-		<div><span>Player 3: </span><input bind:value={player3} /></div>
-		<div><span>Player 4: </span><input bind:value={player4} /></div>
-	</div>
-	<div class="game-parameters">
-		<div>
-			<span>Number of Rounds: </span>
-			<input type="number" bind:value={num_rounds} min="1" max="10" />
-		</div>
-		<div>
-			<span>Questions per Player: </span>
-			<input type="number" bind:value={questions_per_player} min="1" max="10" />
-		</div>
-		<button on:click={startGame} class="start-game-button">Start Game</button>
-	</div>
-</div>
-<div class:settings={game_active === -1}>
+<div class="settings" disabled={game_active === -1}>
 	<div class="round-player">
 		<button on:click={undoButton} class="undo-redo" disabled={game_history.length == 0}>Undo</button
 		>
@@ -371,15 +352,25 @@
 		</tbody>
 	</table>
 </div>
-
-<!-- <div>
-	<ul>
-		<li>Queue: {queue}</li>
-		<li>BAs: {player_bas}</li>
-		<li>Direct: {direct_player}</li>
-		<li>Game: {game_history}</li>
-	</ul>
-</div> -->
+<div class="game-settings" {disabled}>
+	<div class="player-name-parameters">
+		<div><span>Player 1: </span><input bind:value={player1} /></div>
+		<div><span>Player 2: </span><input bind:value={player2} /></div>
+		<div><span>Player 3: </span><input bind:value={player3} /></div>
+		<div><span>Player 4: </span><input bind:value={player4} /></div>
+	</div>
+	<div class="game-parameters">
+		<div>
+			<span>Number of Rounds: </span>
+			<input type="number" bind:value={num_rounds} min="1" max="10" />
+		</div>
+		<div>
+			<span>Questions per Player: </span>
+			<input type="number" bind:value={questions_per_player} min="1" max="10" />
+		</div>
+		<button on:click={startGame} class="start-game-button">Start Game</button>
+	</div>
+</div>
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Geologica:wght,SHRP@100,0;400,0;400,100;700,0&display=swap');
@@ -475,14 +466,18 @@
 		background-color: lightcoral;
 	}
 
-	.game-over {
-		display: none;
+	.game-settings {
+		margin-top: 12px;
+		padding-top: 12px;
+		border-top: 5px solid #555555;
+		visibility: visible;
+		opacity: 1;
+		transition: visibility 0.5s, opacity 0.5s ease-in-out;
 	}
 
-	.game-settings {
-		margin-bottom: 12px;
-		padding-bottom: 12px;
-		border-bottom: 2px solid #555555;
+	.game-settings[disabled='true'] {
+		visibility: hidden;
+		opacity: 0;
 	}
 
 	.start-game-button {
@@ -500,7 +495,6 @@
 		justify-content: space-between;
 		column-gap: 20px;
 		margin-bottom: 20px;
-		/* width: 80%; */
 	}
 
 	.game-settings span {
@@ -534,13 +528,13 @@
 	}
 
 	.settings {
+		transition: filter 0.5s, opacity 0.5s ease-in-out;
+	}
+
+	.settings[disabled = "true"] {
 		opacity: 0.5;
 		filter: grayscale(100%) blur(2px);
 		pointer-events: none;
-	}
-
-	.collapsed {
-		display: none;
 	}
 
 	table {
