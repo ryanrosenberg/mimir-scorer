@@ -20,6 +20,9 @@
 	let active_number = 1;
 	let active_player = 1;
 
+	let total_questions = 12;
+	let game_active = 1;
+
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
 	}
@@ -114,6 +117,9 @@
 		question_number += 1;
 		setDirectPlayer();
 		calculateQueue();
+		if (question_number > total_questions) {
+			endGame();
+		}
 	}
 
 	function correctAnswer() {
@@ -129,6 +135,7 @@
 		advanceQuestion();
 		setActivePlayer();
 	}
+
 	function passAnswer() {
 		game_history += 'P';
 		if (active_number === 4) {
@@ -142,6 +149,7 @@
 		}
 		setActivePlayer();
 	}
+
 	function wrongAnswer() {
 		game_history += 'W';
 		if (active_number === 4) {
@@ -156,6 +164,7 @@
 		}
 		setActivePlayer();
 	}
+
 	function resetButton() {
 		game_history += 'R';
 		player_pts = [0, 0, 0, 0];
@@ -170,6 +179,7 @@
 		queue = [1, 2, 3, 4];
 		active_number = 1;
 	}
+
 	function findPlayerName(queue, num) {
 		switch (queue[num - 1]) {
 			case 1:
@@ -182,7 +192,9 @@
 				return player4;
 		}
 	}
+
 	function undoButton() {
+		game_active = 1;
 		player_pts = [0, 0, 0, 0];
 		player_bas = [0, 0, 0, 0];
 		player_stl = [0, 0, 0, 0];
@@ -195,8 +207,8 @@
 		queue = [1, 2, 3, 4];
 		active_number = 1;
 		active_player = 1;
-		undo_stack.push(game_history.slice(-1));
-		console.log(undo_stack.join());
+		undo_stack = [...undo_stack, game_history.slice(-1)];
+		console.log(undo_stack.length);
 		const events = game_history.split('').slice(0, -1);
 		game_history = [];
 		events.map((event) => {
@@ -219,6 +231,7 @@
 
 	function redoButton() {
 		const event = undo_stack.pop();
+		undo_stack = undo_stack;
 		switch (event) {
 			case 'C':
 				correctAnswer();
@@ -234,6 +247,11 @@
 				break;
 		}
 	}
+
+	function endGame() {
+		game_active = 0;
+	}
+
 </script>
 
 <div class="nav">
@@ -241,22 +259,22 @@
 	<div class="title-line" />
 </div>
 <div class="round-player">
-	<button on:click={undoButton} class="undo-redo">Undo</button>
+	<button on:click={undoButton} class="undo-redo" disabled={game_history.length == 0}>Undo</button>
 	<span>
 		Round {Math.ceil(question_number / 12)} Player {Math.ceil(
 			(question_number % 12 == 0 ? 12 : question_number % 12) / 3
 		)}
 	</span>
-	<button on:click={redoButton} class="undo-redo">Redo</button>
+	<button on:click={redoButton} class="undo-redo" disabled={undo_stack.length == 0}>Redo</button>
 </div>
-<div class="order-text">
+<div class="order-text" class:game-over={game_active == 0}>
 	Question {((question_number - 1) % 3) + 1}:
 	<span class:active={active_number == 1}>{findPlayerName(queue, 1)}</span> >
 	<span class:active={active_number == 2}>{findPlayerName(queue, 2)}</span> >
 	<span class:active={active_number == 3}>{findPlayerName(queue, 3)}</span> >
 	<span class:active={active_number == 4}>{findPlayerName(queue, 4)}</span>
 </div>
-<div class="button-div">
+<div class="button-div" class:game-over={game_active == 0}>
 	<button on:click={correctAnswer} class="correct-button">Correct</button>
 	<button on:click={passAnswer} class="pass-button">Pass</button>
 	<button on:click={wrongAnswer} class="wrong-button">Wrong</button>
@@ -353,7 +371,9 @@
 	.round-player {
 		display: flex;
 		font-size: 40px;
+		font-weight: 100;
 		justify-content: space-between;
+		align-items: center;
 		border-bottom: 3px solid #555555;
 		margin-bottom: 12px;
 	}
@@ -403,6 +423,10 @@
 
 	.reset-button {
 		background-color: lightcoral;
+	}
+
+	.game-over {
+		display: none;
 	}
 
 	table {
