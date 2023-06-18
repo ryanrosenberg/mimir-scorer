@@ -1,5 +1,14 @@
 <script>
 	import UploadCSV from 'upload-csv-svelte';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
+	import AudioPlayer, { stopAll } from './AudioPlayer.svelte';
+
+	let audioTracks = [
+		'https://sveltejs.github.io/assets/music/strauss.mp3',
+		'https://sveltejs.github.io/assets/music/holst.mp3',
+		'https://sveltejs.github.io/assets/music/satie.mp3'
+	];
 
 	let player1 = 'Alice';
 	let player2 = 'Bob';
@@ -33,6 +42,18 @@
 
 	let questions = [];
 	let show_button = 'Show Question';
+
+	let timerStart = 0;
+	let original = 30;
+	let timer = tweened(original, {
+		duration: 400,
+		easing: cubicOut
+	});
+	$: seconds = $timer;
+
+	setInterval(() => {
+		if (($timer > 0) & (timerStart === 1)) $timer--;
+	}, 1000);
 
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
@@ -134,6 +155,9 @@
 	}
 
 	function advanceQuestion() {
+		toggleQuestion();
+		timerStart = 0;
+		timer.set(30);
 		active_number = 1;
 		question_number += 1;
 		updateRoundPlayerText();
@@ -166,8 +190,12 @@
 		} else if (active_number === 1) {
 			addDirectAttempt();
 			active_number += 1;
+			timer.set(3);
+			timerStart = 1;
 		} else {
 			active_number += 1;
+			timer.set(3);
+			timerStart = 1;
 		}
 		setActivePlayer();
 	}
@@ -180,9 +208,13 @@
 		} else if (active_number === 1) {
 			addDirectAttempt();
 			active_number += 1;
+			timer.set(3);
+			timerStart = 1;
 		} else {
 			addBonusAttempt();
 			active_number += 1;
+			timer.set(3);
+			timerStart = 1;
 		}
 		setActivePlayer();
 	}
@@ -200,6 +232,8 @@
 		direct_player = 1;
 		queue = [1, 2, 3, 4];
 		active_number = 1;
+		timerStart = 0;
+		timer.set(30);
 	}
 
 	function findPlayerName(queue, num) {
@@ -277,6 +311,14 @@
 
 	function toggleQuestion() {
 		show_button = show_button === 'Show Question' ? 'Hide Question' : 'Show Question';
+	}
+
+	function toggleTimer() {
+		if (timerStart === 0) {
+			timerStart = 1;
+		} else {
+			timerStart = 0;
+		}
 	}
 
 	function startGame() {
@@ -360,10 +402,28 @@
 			</tr>
 		</tbody>
 	</table>
-	{#if questions}
+	{#if questions.length > 0}
 		<div class="question-display-area">
-			<button class="show-question-button" on:click={toggleQuestion}>{show_button}</button>
-			{show_button === 'Hide Question' ? questions[question_number][0] : ''}
+			<button
+				class={'show-question-button ' +
+					(show_button === 'Hide Question' ? 'question-hid' : 'question-shown')}
+				on:click={toggleQuestion}>{show_button}</button
+			>
+			<span class="question-text"
+				>{show_button === 'Hide Question' ? questions[question_number][0] : ''}</span
+			>
+			{#if questions[question_number][2]}
+				{questions[question_number][2]}
+				<AudioPlayer src={questions[question_number][2]} />
+			{/if}<button
+				class={'timer ' + (timerStart === 0 ? 'timer-paused' : 'timer-running')}
+				on:click={toggleTimer}>{Math.ceil(seconds)}</button
+			>
+		</div>
+		<div class="answer-display-area">
+			<span class="question-text"
+				>{question_number > 1 ? questions[question_number - 1][1] : ''}</span
+			>
 		</div>
 	{/if}
 </div>
@@ -393,7 +453,7 @@
 </div>
 
 <style>
-	@import url('https://fonts.googleapis.com/css2?family=Geologica:wght,SHRP@100,0;400,0;400,100;700,0&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Geologica:wght@100..700&display=swap');
 	@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
 	@import url('https://fonts.googleapis.com/css2?family=Inconsolata&display=swap');
 
@@ -430,7 +490,7 @@
 	.round-player {
 		display: flex;
 		font-size: 40px;
-		font-weight: 100;
+		font-weight: 200;
 		justify-content: space-between;
 		align-items: center;
 		border-bottom: 3px solid #555555;
@@ -445,13 +505,13 @@
 
 	.order-text {
 		font-size: 40px;
-		font-weight: 100;
+		font-weight: 200;
 		text-align: center;
 		margin-bottom: 20px;
 	}
 
 	.active {
-		font-weight: 700;
+		font-weight: 600;
 		text-decoration: underline;
 		text-underline-offset: 4px;
 	}
@@ -487,8 +547,10 @@
 	}
 
 	.game-settings {
-		margin-top: 12px;
-		padding-top: 12px;
+		position: fixed;
+		bottom: 0%;
+		width: 100%;
+		padding: 12px;
 		border-top: 5px solid #555555;
 		visibility: visible;
 		opacity: 1;
@@ -560,10 +622,47 @@
 	.question-display-area {
 		display: flex;
 	}
+
 	.show-question-button {
+		flex: 1;
 		font-size: 25px;
 		padding: 8px;
 		margin: 8px;
+		height: 100px;
+		max-width: 300px;
+	}
+
+	.question-shown {
+		background-color: bisque;
+	}
+
+	.question-hid {
+		background-color: aliceblue;
+	}
+
+	.question-text {
+		flex: 4;
+		font-family: 'Geologica';
+		font-weight: 200;
+		font-size: 40px;
+		padding: 8px;
+	}
+
+	.timer {
+		flex: 1;
+		font-size: 40px;
+		padding: 8px;
+		margin: 8px;
+		height: 100px;
+		max-width: 150px;
+	}
+
+	.timer-running {
+		background-color: aliceblue;
+	}
+
+	.timer-paused {
+		background-color: bisque;
 	}
 
 	table {
@@ -579,7 +678,7 @@
 	}
 
 	tr {
-		font-weight: 100;
+		font-weight: 200;
 	}
 
 	tr:nth-child(even) {
