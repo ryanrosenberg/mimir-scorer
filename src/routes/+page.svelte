@@ -16,6 +16,8 @@
 	let player3 = 'Carol';
 	let player4 = 'Dave';
 
+	$: player_names = [player1, player2, player3, player4];
+
 	let game_history = '';
 	let undo_stack = [];
 
@@ -376,10 +378,10 @@
 	</div>
 	<div class="order-text" class:game-over={game_active == 0}>
 		Question {((question_number - 1) % questions_per_player) + 1}:
-		<span class:active={active_number == 1}>{findPlayerName(queue, 1)}</span> >
-		<span class:active={active_number == 2}>{findPlayerName(queue, 2)}</span> >
-		<span class:active={active_number == 3}>{findPlayerName(queue, 3)}</span> >
-		<span class:active={active_number == 4}>{findPlayerName(queue, 4)}</span>
+		<span class:active={active_number == 1}>{player_names[queue[0] - 1]}</span> >
+		<span class:active={active_number == 2}>{player_names[queue[1] - 1]}</span> >
+		<span class:active={active_number == 3}>{player_names[queue[2] - 1]}</span> >
+		<span class:active={active_number == 4}>{player_names[queue[3] - 1]}</span>
 	</div>
 	<div class="button-div" class:game-over={game_active == 0}>
 		<button on:click={correctAnswer} class="correct-button">Correct</button>
