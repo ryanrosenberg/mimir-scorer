@@ -32,6 +32,7 @@
 	let disabled = false;
 
 	let questions = [];
+	let show_button = 'Show Question';
 
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
@@ -274,6 +275,10 @@
 		}
 	}
 
+	function toggleQuestion() {
+		show_button = show_button === 'Show Question' ? 'Hide Question' : 'Show Question';
+	}
+
 	function startGame() {
 		game_active = 1;
 		disabled = true;
@@ -357,7 +362,8 @@
 	</table>
 	{#if questions}
 		<div class="question-display-area">
-			{questions.length > 0 ? questions[question_number] : ''}
+			<button class="show-question-button" on:click={toggleQuestion}>{show_button}</button>
+			{show_button === 'Hide Question' ? questions[question_number][0] : ''}
 		</div>
 	{/if}
 </div>
@@ -378,7 +384,9 @@
 			<input type="number" bind:value={questions_per_player} min="1" max="10" />
 		</div>
 		<UploadCSV
-			onUpload={(csvData) => {questions = csvData}}
+			onUpload={(csvData) => {
+				questions = csvData;
+			}}
 		/>
 		<button on:click={startGame} class="start-game-button">Start Game</button>
 	</div>
@@ -391,7 +399,6 @@
 
 	* {
 		font-family: 'Geologica';
-		font-size: 40px;
 	}
 
 	.nav {
@@ -401,6 +408,7 @@
 	}
 
 	.title {
+		font-size: 40px;
 		width: 260px;
 	}
 
@@ -549,9 +557,18 @@
 		pointer-events: none;
 	}
 
+	.question-display-area {
+		display: flex;
+	}
+	.show-question-button {
+		font-size: 25px;
+		padding: 8px;
+		margin: 8px;
+	}
+
 	table {
 		margin-top: 20px;
-		font-size: 40px;
+		font-size: 32px;
 		width: 100%;
 		border-collapse: collapse;
 	}
