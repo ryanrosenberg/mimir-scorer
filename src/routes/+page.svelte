@@ -588,7 +588,11 @@
 		width: 100%;
 		box-sizing: border-box;
 		padding: 24px;
+
 		border-top: 5px solid #555555;
+
+		background-color: white;
+
 		visibility: visible;
 		opacity: 1;
 		transition: visibility 0.5s, opacity 0.5s ease-in-out;
