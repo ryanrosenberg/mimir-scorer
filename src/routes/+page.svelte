@@ -2,7 +2,8 @@
 	import UploadCSV from 'upload-csv-svelte';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import AudioPlayer, { stopAll } from './AudioPlayer.svelte';
+	import AudioPlayer from './AudioPlayer.svelte';
+	import Image from './Image.svelte'
 
 	let audioTracks = [
 		'https://sveltejs.github.io/assets/music/strauss.mp3',
@@ -413,9 +414,16 @@
 				>{show_button === 'Hide Question' ? questions[question_number][0] : ''}</span
 			>
 			{#if questions[question_number][2]}
-				{questions[question_number][2]}
-				<AudioPlayer src={questions[question_number][2]} />
-			{/if}<button
+				{#if show_button === 'Hide Question'}
+					<AudioPlayer src={questions[question_number][2]} />
+				{/if}
+			{/if}
+			{#if questions[question_number][3]}
+				{#if show_button === 'Hide Question'}
+					<Image class = 'question-image'src={questions[question_number][3]} />
+				{/if}
+			{/if}
+			<button
 				class={'timer ' + (timerStart === 0 ? 'timer-paused' : 'timer-running')}
 				on:click={toggleTimer}>{Math.ceil(seconds)}</button
 			>
@@ -444,6 +452,7 @@
 			<input type="number" bind:value={questions_per_player} min="1" max="10" />
 		</div>
 		<UploadCSV
+			allowedFileExtensions={['csv']}
 			onUpload={(csvData) => {
 				questions = csvData;
 			}}
@@ -550,7 +559,8 @@
 		position: fixed;
 		bottom: 0%;
 		width: 100%;
-		padding: 12px;
+		box-sizing: border-box;
+		padding: 24px;
 		border-top: 5px solid #555555;
 		visibility: visible;
 		opacity: 1;
@@ -563,7 +573,7 @@
 	}
 
 	.start-game-button {
-		flex-grow: 2;
+		flex-grow: 1;
 		font-size: 24px;
 		padding: 8px;
 		margin: 8px;
