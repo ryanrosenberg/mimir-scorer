@@ -3,7 +3,7 @@
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import AudioPlayer from './AudioPlayer.svelte';
-	import Image from './Image.svelte'
+	import Image from './Image.svelte';
 
 	let audioTracks = [
 		'https://sveltejs.github.io/assets/music/strauss.mp3',
@@ -23,6 +23,7 @@
 	let num_players = 4;
 	let questions_per_player = 3;
 	let total_questions = num_rounds * num_players * questions_per_player;
+	let seconds_per_steal = 3;
 	let game_active = 1;
 	let disabled = true;
 
@@ -55,7 +56,7 @@
 	setInterval(() => {
 		if (($timer > 0) & (timerStart === 1)) $timer--;
 	}, 1000);
-  
+
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
 	}
@@ -214,11 +215,11 @@
 		} else if (active_number === 1) {
 			addDirectAttempt();
 			active_number += 1;
-			timer.set(3);
+			timer.set(seconds_per_steal);
 			timerStart = 1;
 		} else {
 			active_number += 1;
-			timer.set(3);
+			timer.set(seconds_per_steal);
 			timerStart = 1;
 		}
 		setActivePlayer();
@@ -232,12 +233,12 @@
 		} else if (active_number === 1) {
 			addDirectAttempt();
 			active_number += 1;
-			timer.set(3);
+			timer.set(seconds_per_steal);
 			timerStart = 1;
 		} else {
 			addBonusAttempt();
 			active_number += 1;
-			timer.set(3);
+			timer.set(seconds_per_steal);
 			timerStart = 1;
 		}
 		setActivePlayer();
@@ -257,7 +258,7 @@
 		direct_player = 1;
 		queue = [...Array(num_players + 1).keys()].slice(1);
 		active_number = 1;
-    
+
 		timerStart = 0;
 		timer.set(30);
 	}
@@ -447,7 +448,7 @@
 			{/if}
 			{#if questions[question_number][3]}
 				{#if show_button === 'Hide Question'}
-					<Image class = 'question-image'src={questions[question_number][3]} />
+					<Image class="question-image" src={questions[question_number][3]} />
 				{/if}
 			{/if}
 			<button
@@ -478,12 +479,20 @@
 			<span>Questions per Player: </span>
 			<input type="number" bind:value={questions_per_player} min="1" max="10" />
 		</div>
-		<UploadCSV
-			allowedFileExtensions={['csv']}
-			onUpload={(csvData) => {
-				questions = csvData;
-			}}
-		/>
+		<div>
+			<span>Seconds per Steal: </span>
+			<input type="number" bind:value={seconds_per_steal} min="1" max="10" />
+		</div>
+		<div class = 'questions-box'>
+			<span class = 'questions-header'>Questions</span>
+			<UploadCSV
+				allowedFileExtensions={['csv']}
+				onUpload={(csvData) => {
+					questions = csvData;
+				}}
+			/>
+		</div>
+
 		<button on:click={startGame} class="start-game-button">Start Game</button>
 	</div>
 </div>
@@ -626,6 +635,13 @@
 
 	.game-settings input {
 		font-size: 24px;
+		padding: 8px;
+	}
+
+	.questions-box {
+		flex-direction: column !important;
+		align-items: flex-start !important;
+		border: 2px solid #555555;
 		padding: 8px;
 	}
 
