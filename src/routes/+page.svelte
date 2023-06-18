@@ -20,7 +20,12 @@
 	let active_number = 1;
 	let active_player = 1;
 
-	let total_questions = 12;
+	let round_player_text = 'Round 1 Player 1';
+
+	let num_rounds = 5;
+	let num_players = 4;
+	let questions_per_player = 3;
+	let total_questions = num_rounds * num_players * questions_per_player;
 	let game_active = 1;
 
 	function setActivePlayer() {
@@ -28,11 +33,11 @@
 	}
 
 	function setDirectPlayer() {
-		if ([1, 2, 3].includes(question_number % 12)) {
+		if ([1, 2, 3].includes(question_number % (num_players * questions_per_player))) {
 			direct_player = 1;
-		} else if ([4, 5, 6].includes(question_number % 12)) {
+		} else if ([4, 5, 6].includes(question_number % (num_players * questions_per_player))) {
 			direct_player = 2;
-		} else if ([7, 8, 9].includes(question_number % 12)) {
+		} else if ([7, 8, 9].includes(question_number % (num_players * questions_per_player))) {
 			direct_player = 3;
 		} else {
 			direct_player = 4;
@@ -112,9 +117,20 @@
 		}
 	}
 
+	function updateRoundPlayerText() {
+		round_player_text = `Round ${Math.ceil(
+			question_number / (num_players * questions_per_player)
+		)} Player ${Math.ceil(
+			(question_number % (num_players * questions_per_player) == 0
+				? num_players * questions_per_player
+				: question_number % (num_players * questions_per_player)) / questions_per_player
+		)}`;
+	}
+
 	function advanceQuestion() {
 		active_number = 1;
 		question_number += 1;
+		updateRoundPlayerText();
 		setDirectPlayer();
 		calculateQueue();
 		if (question_number > total_questions) {
@@ -250,8 +266,8 @@
 
 	function endGame() {
 		game_active = 0;
+		round_player_text = 'Completed';
 	}
-
 </script>
 
 <div class="nav">
@@ -261,14 +277,15 @@
 <div class="round-player">
 	<button on:click={undoButton} class="undo-redo" disabled={game_history.length == 0}>Undo</button>
 	<span>
-		Round {Math.ceil(question_number / 12)} Player {Math.ceil(
-			(question_number % 12 == 0 ? 12 : question_number % 12) / 3
-		)}
+		{round_player_text}
 	</span>
 	<button on:click={redoButton} class="undo-redo" disabled={undo_stack.length == 0}>Redo</button>
 </div>
 <div class="order-text" class:game-over={game_active == 0}>
-	Question {((question_number - 1) % 3) + 1}:
+	Question {((question_number - 1) % questions_per_player) + 1}:
+	<!-- {
+		_.range(1,)
+	} -->
 	<span class:active={active_number == 1}>{findPlayerName(queue, 1)}</span> >
 	<span class:active={active_number == 2}>{findPlayerName(queue, 2)}</span> >
 	<span class:active={active_number == 3}>{findPlayerName(queue, 3)}</span> >
@@ -324,14 +341,15 @@
 		</tr>
 	</tbody>
 </table>
-<div>
+
+<!-- <div>
 	<ul>
 		<li>Queue: {queue}</li>
 		<li>BAs: {player_bas}</li>
 		<li>Direct: {direct_player}</li>
 		<li>Game: {game_history}</li>
 	</ul>
-</div>
+</div> -->
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Geologica:wght,SHRP@100,0;400,0;400,100;700,0&display=swap');
