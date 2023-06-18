@@ -26,7 +26,8 @@
 	let num_players = 4;
 	let questions_per_player = 3;
 	let total_questions = num_rounds * num_players * questions_per_player;
-	let game_active = 1;
+	let game_active = -1;
+	let collapsed = false;
 
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
@@ -197,15 +198,20 @@
 	}
 
 	function findPlayerName(queue, num) {
+		let player;
 		switch (queue[num - 1]) {
 			case 1:
-				return player1;
+				player = player1;
+				return player;
 			case 2:
-				return player2;
+				player = player2;
+				return player;
 			case 3:
-				return player3;
+				player = player3;
+				return player;
 			case 4:
-				return player4;
+				player = player4;
+				return player;
 		}
 	}
 
@@ -264,6 +270,11 @@
 		}
 	}
 
+	function startGame() {
+		game_active = 1;
+		collapsed = true;
+	}
+
 	function endGame() {
 		game_active = 0;
 		round_player_text = 'Completed';
@@ -274,73 +285,92 @@
 	<span class="title">MIMIR Scorer</span>
 	<div class="title-line" />
 </div>
-<div class="round-player">
-	<button on:click={undoButton} class="undo-redo" disabled={game_history.length == 0}>Undo</button>
-	<span>
-		{round_player_text}
-	</span>
-	<button on:click={redoButton} class="undo-redo" disabled={undo_stack.length == 0}>Redo</button>
+<div class="game-settings" class:collapsed>
+	<div class="player-name-parameters">
+		<div><span>Player 1: </span><input bind:value={player1} /></div>
+		<div><span>Player 2: </span><input bind:value={player2} /></div>
+		<div><span>Player 3: </span><input bind:value={player3} /></div>
+		<div><span>Player 4: </span><input bind:value={player4} /></div>
+	</div>
+	<div class="game-parameters">
+		<div>
+			<span>Number of Rounds: </span>
+			<input type="number" bind:value={num_rounds} min="1" max="10" />
+		</div>
+		<div>
+			<span>Questions per Player: </span>
+			<input type="number" bind:value={questions_per_player} min="1" max="10" />
+		</div>
+		<button on:click={startGame} class="start-game-button">Start Game</button>
+	</div>
 </div>
-<div class="order-text" class:game-over={game_active == 0}>
-	Question {((question_number - 1) % questions_per_player) + 1}:
-	<!-- {
-		_.range(1,)
-	} -->
-	<span class:active={active_number == 1}>{findPlayerName(queue, 1)}</span> >
-	<span class:active={active_number == 2}>{findPlayerName(queue, 2)}</span> >
-	<span class:active={active_number == 3}>{findPlayerName(queue, 3)}</span> >
-	<span class:active={active_number == 4}>{findPlayerName(queue, 4)}</span>
+<div class:settings={game_active === -1}>
+	<div class="round-player">
+		<button on:click={undoButton} class="undo-redo" disabled={game_history.length == 0}>Undo</button
+		>
+		<span>
+			{round_player_text}
+		</span>
+		<button on:click={redoButton} class="undo-redo" disabled={undo_stack.length == 0}>Redo</button>
+	</div>
+	<div class="order-text" class:game-over={game_active == 0}>
+		Question {((question_number - 1) % questions_per_player) + 1}:
+		<span class:active={active_number == 1}>{findPlayerName(queue, 1)}</span> >
+		<span class:active={active_number == 2}>{findPlayerName(queue, 2)}</span> >
+		<span class:active={active_number == 3}>{findPlayerName(queue, 3)}</span> >
+		<span class:active={active_number == 4}>{findPlayerName(queue, 4)}</span>
+	</div>
+	<div class="button-div" class:game-over={game_active == 0}>
+		<button on:click={correctAnswer} class="correct-button">Correct</button>
+		<button on:click={passAnswer} class="pass-button">Pass</button>
+		<button on:click={wrongAnswer} class="wrong-button">Wrong</button>
+		<button on:click={resetButton} class="reset-button">Reset</button>
+	</div>
+	<table>
+		<thead>
+			<th>Player</th>
+			<th>Pts</th>
+			<th>Directs</th>
+			<th>Stl</th>
+			<th>BAs</th>
+			<th>Xs</th>
+		</thead>
+		<tbody>
+			<tr>
+				<td class:active={direct_player == 1}>{player1}</td>
+				<td>{player_pts[0]}</td>
+				<td>{player_directs[0]} / {player_direct_attempts[0]}</td>
+				<td>{player_stl[0]}</td>
+				<td>{player_bas[0]}</td>
+				<td>{player_xs[0]}</td>
+			</tr>
+			<tr>
+				<td class:active={direct_player == 2}>{player2}</td>
+				<td>{player_pts[1]}</td>
+				<td>{player_directs[1]} / {player_direct_attempts[1]}</td>
+				<td>{player_stl[1]}</td>
+				<td>{player_bas[1]}</td>
+				<td>{player_xs[1]}</td>
+			</tr>
+			<tr>
+				<td class:active={direct_player == 3}>{player3}</td>
+				<td>{player_pts[2]}</td>
+				<td>{player_directs[2]} / {player_direct_attempts[2]}</td>
+				<td>{player_stl[2]}</td>
+				<td>{player_bas[2]}</td>
+				<td>{player_xs[2]}</td>
+			</tr>
+			<tr>
+				<td class:active={direct_player == 4}>{player4}</td>
+				<td>{player_pts[3]}</td>
+				<td>{player_directs[3]} / {player_direct_attempts[3]}</td>
+				<td>{player_stl[3]}</td>
+				<td>{player_bas[3]}</td>
+				<td>{player_xs[3]}</td>
+			</tr>
+		</tbody>
+	</table>
 </div>
-<div class="button-div" class:game-over={game_active == 0}>
-	<button on:click={correctAnswer} class="correct-button">Correct</button>
-	<button on:click={passAnswer} class="pass-button">Pass</button>
-	<button on:click={wrongAnswer} class="wrong-button">Wrong</button>
-	<button on:click={resetButton} class="reset-button">Reset</button>
-</div>
-<table>
-	<thead>
-		<th>Player</th>
-		<th>Pts</th>
-		<th>Directs</th>
-		<th>Stl</th>
-		<th>BAs</th>
-		<th>Xs</th>
-	</thead>
-	<tbody>
-		<tr>
-			<td class:active={direct_player == 1}>{player1}</td>
-			<td>{player_pts[0]}</td>
-			<td>{player_directs[0]} / {player_direct_attempts[0]}</td>
-			<td>{player_stl[0]}</td>
-			<td>{player_bas[0]}</td>
-			<td>{player_xs[0]}</td>
-		</tr>
-		<tr>
-			<td class:active={direct_player == 2}>{player2}</td>
-			<td>{player_pts[1]}</td>
-			<td>{player_directs[1]} / {player_direct_attempts[1]}</td>
-			<td>{player_stl[1]}</td>
-			<td>{player_bas[1]}</td>
-			<td>{player_xs[1]}</td>
-		</tr>
-		<tr>
-			<td class:active={direct_player == 3}>{player3}</td>
-			<td>{player_pts[2]}</td>
-			<td>{player_directs[2]} / {player_direct_attempts[2]}</td>
-			<td>{player_stl[2]}</td>
-			<td>{player_bas[2]}</td>
-			<td>{player_xs[2]}</td>
-		</tr>
-		<tr>
-			<td class:active={direct_player == 4}>{player4}</td>
-			<td>{player_pts[3]}</td>
-			<td>{player_directs[3]} / {player_direct_attempts[3]}</td>
-			<td>{player_stl[3]}</td>
-			<td>{player_bas[3]}</td>
-			<td>{player_xs[3]}</td>
-		</tr>
-	</tbody>
-</table>
 
 <!-- <div>
 	<ul>
@@ -412,6 +442,7 @@
 	.active {
 		font-weight: 700;
 		text-decoration: underline;
+		text-underline-offset: 4px;
 	}
 
 	button {
@@ -419,6 +450,7 @@
 		padding: 40px;
 		border-radius: 8px;
 		width: 250px;
+		box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 	}
 
 	.button-div {
@@ -444,6 +476,70 @@
 	}
 
 	.game-over {
+		display: none;
+	}
+
+	.game-settings {
+		margin-bottom: 12px;
+		padding-bottom: 12px;
+		border-bottom: 2px solid #555555;
+	}
+
+	.start-game-button {
+		flex-grow: 2;
+		font-size: 24px;
+		padding: 8px;
+		margin: 8px;
+		background-color: green;
+		color: white;
+	}
+
+	.player-name-parameters {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		column-gap: 20px;
+		margin-bottom: 20px;
+		/* width: 80%; */
+	}
+
+	.game-settings span {
+		font-size: 24px;
+	}
+
+	.game-settings input {
+		font-size: 24px;
+		padding: 8px;
+	}
+
+	.player-name-parameters div {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		row-gap: 8px;
+	}
+
+	.game-parameters {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		column-gap: 20px;
+	}
+
+	.game-parameters div {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		column-gap: 8px;
+	}
+
+	.settings {
+		opacity: 0.5;
+		filter: grayscale(100%) blur(2px);
+		pointer-events: none;
+	}
+
+	.collapsed {
 		display: none;
 	}
 
