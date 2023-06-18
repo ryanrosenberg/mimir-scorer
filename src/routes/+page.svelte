@@ -364,7 +364,7 @@
 	<div class="title-line" />
 </div>
 
-<div class="settings" disabled={game_active === -1}>
+<div class="settings" {disabled}>
 	<div class="round-player">
 		<button on:click={undoButton} class="undo-redo" disabled={game_history.length == 0}>Undo</button
 		>
@@ -594,7 +594,7 @@
 		transition: visibility 0.5s, opacity 0.5s ease-in-out;
 	}
 
-	.game-settings[disabled='true'] {
+	.game-settings[disabled='false'] {
 		visibility: hidden;
 		opacity: 0;
 	}
