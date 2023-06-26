@@ -50,28 +50,28 @@
 	}
 
 	function calculateQueue() {
-		function rankings(array) {
-			console.log(array + 'x');
-			return array
-				.map((v, i) => [v, i])
-				.sort((a, b) => a[0] - b[0])
-				.map((a, i) => [...a, i + 1])
-				.sort((a, b) => a[1] - b[1])
-				.map((a) => a[2]);
-		}
+		// function rankings(array) {
+		// 	console.log(array + 'x');
+		// 	return array
+		// 		.map((v, i) => [v, i])
+		// 		.sort((a, b) => a[0] - b[0])
+		// 		.map((a, i) => [...a, i + 1])
+		// 		.sort((a, b) => a[1] - b[1])
+		// 		.map((a) => a[2]);
+		// }
 
-		const tiebreaker = [...Array(num_players).keys()]
-			.map((x) => x + 1)
-			.slice(direct_player - 1)
-			.concat([...Array(num_players + 1).keys()].slice(0, direct_player - 1));
-		let ranked_bas = rankings(
-			player_bas.map((bas, index) => {
-				return bas + tiebreaker.indexOf(index + 1) / 100;
-			})
-		);
+		// const tiebreaker = [...Array(num_players).keys()]
+		// 	.map((x) => x + 1)
+		// 	.slice(direct_player - 1)
+		// 	.concat([...Array(num_players + 1).keys()].slice(0, direct_player - 1));
+		// let ranked_bas = rankings(
+		// 	player_bas.map((bas, index) => {
+		// 		return bas + tiebreaker.indexOf(index + 1) / 100;
+		// 	})
+		// );
 
-		console.log(ranked_bas);
-		console.log([...Array(num_players).keys()].map((x) => (ranked_bas.indexOf(x) + 1)));
+		// console.log(ranked_bas);
+		// console.log([...Array(num_players).keys()].map((x) => (ranked_bas.indexOf(x) + 1)));
 
 		switch (direct_player) {
 			case 1:
