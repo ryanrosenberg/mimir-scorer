@@ -1,32 +1,29 @@
 <script>
-	let player1 = 'Alice';
-	let player2 = 'Bob';
-	let player3 = 'Carol';
-	let player4 = 'Dave';
+	let player_names = ['Alice', 'Bob', 'Carol', 'Dave'];
 
 	let game_history = '';
 	let undo_stack = [];
-
-	let player_pts = [0, 0, 0, 0];
-	let player_bas = [0, 0, 0, 0];
-	let player_stl = [0, 0, 0, 0];
-	let player_directs = [0, 0, 0, 0];
-	let player_direct_attempts = [0, 0, 0, 0];
-	let player_xs = [0, 0, 0, 0];
-
-	let question_number = 1;
-	let direct_player = 1;
-	let queue = [1, 2, 3, 4];
-	let active_number = 1;
-	let active_player = 1;
-
-	let round_player_text = 'Round 1 Player 1';
 
 	let num_rounds = 5;
 	let num_players = 4;
 	let questions_per_player = 3;
 	let total_questions = num_rounds * num_players * questions_per_player;
 	let game_active = 1;
+
+	let player_pts = Array(num_players).fill(0);
+	let player_bas = Array(num_players).fill(0);
+	let player_stl = Array(num_players).fill(0);
+	let player_directs = Array(num_players).fill(0);
+	let player_direct_attempts = Array(num_players).fill(0);
+	let player_xs = Array(num_players).fill(0);
+
+	let question_number = 1;
+	let direct_player = 1;
+	let queue = [...Array(num_players + 1).keys()].slice(1);
+	let active_number = 1;
+	let active_player = 1;
+
+	let round_player_text = 'Round 1 Player 1';
 
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
@@ -53,6 +50,29 @@
 	}
 
 	function calculateQueue() {
+		function rankings(array) {
+			console.log(array + 'x');
+			return array
+				.map((v, i) => [v, i])
+				.sort((a, b) => a[0] - b[0])
+				.map((a, i) => [...a, i + 1])
+				.sort((a, b) => a[1] - b[1])
+				.map((a) => a[2]);
+		}
+
+		const tiebreaker = [...Array(num_players).keys()]
+			.map((x) => x + 1)
+			.slice(direct_player - 1)
+			.concat([...Array(num_players + 1).keys()].slice(0, direct_player - 1));
+		let ranked_bas = rankings(
+			player_bas.map((bas, index) => {
+				return bas + tiebreaker.indexOf(index + 1) / 100;
+			})
+		);
+
+		console.log(ranked_bas);
+		console.log([...Array(num_players).keys()].map((x) => (ranked_bas.indexOf(x) + 1)));
+
 		switch (direct_player) {
 			case 1:
 				if ((player_bas[1] <= player_bas[2]) & (player_bas[2] <= player_bas[3])) {
@@ -154,7 +174,7 @@
 
 	function passAnswer() {
 		game_history += 'P';
-		if (active_number === 4) {
+		if (active_number === num_players) {
 			player_xs[direct_player - 1] += 1;
 			advanceQuestion();
 		} else if (active_number === 1) {
@@ -168,7 +188,7 @@
 
 	function wrongAnswer() {
 		game_history += 'W';
-		if (active_number === 4) {
+		if (active_number === num_players) {
 			addBonusAttempt();
 			advanceQuestion();
 		} else if (active_number === 1) {
@@ -183,46 +203,36 @@
 
 	function resetButton() {
 		game_history += 'R';
-		player_pts = [0, 0, 0, 0];
-		player_bas = [0, 0, 0, 0];
-		player_stl = [0, 0, 0, 0];
-		player_directs = [0, 0, 0, 0];
-		player_direct_attempts = [0, 0, 0, 0];
-		player_xs = [0, 0, 0, 0];
+		game_active = 1;
+		player_pts = Array(num_players).fill(0);
+		player_bas = Array(num_players).fill(0);
+		player_stl = Array(num_players).fill(0);
+		player_directs = Array(num_players).fill(0);
+		player_direct_attempts = Array(num_players).fill(0);
+		player_xs = Array(num_players).fill(0);
 
 		question_number = 1;
 		direct_player = 1;
-		queue = [1, 2, 3, 4];
+		queue = [...Array(num_players + 1).keys()].slice(1);
 		active_number = 1;
-	}
-
-	function findPlayerName(queue, num) {
-		switch (queue[num - 1]) {
-			case 1:
-				return player1;
-			case 2:
-				return player2;
-			case 3:
-				return player3;
-			case 4:
-				return player4;
-		}
+		active_player = 1;
 	}
 
 	function undoButton() {
 		game_active = 1;
-		player_pts = [0, 0, 0, 0];
-		player_bas = [0, 0, 0, 0];
-		player_stl = [0, 0, 0, 0];
-		player_directs = [0, 0, 0, 0];
-		player_direct_attempts = [0, 0, 0, 0];
-		player_xs = [0, 0, 0, 0];
+		player_pts = Array(num_players).fill(0);
+		player_bas = Array(num_players).fill(0);
+		player_stl = Array(num_players).fill(0);
+		player_directs = Array(num_players).fill(0);
+		player_direct_attempts = Array(num_players).fill(0);
+		player_xs = Array(num_players).fill(0);
 
 		question_number = 1;
 		direct_player = 1;
-		queue = [1, 2, 3, 4];
+		queue = [...Array(num_players + 1).keys()].slice(1);
 		active_number = 1;
 		active_player = 1;
+
 		undo_stack = [...undo_stack, game_history.slice(-1)];
 		console.log(undo_stack.length);
 		const events = game_history.split('').slice(0, -1);
@@ -283,13 +293,10 @@
 </div>
 <div class="order-text" class:game-over={game_active == 0}>
 	Question {((question_number - 1) % questions_per_player) + 1}:
-	<!-- {
-		_.range(1,)
-	} -->
-	<span class:active={active_number == 1}>{findPlayerName(queue, 1)}</span> >
-	<span class:active={active_number == 2}>{findPlayerName(queue, 2)}</span> >
-	<span class:active={active_number == 3}>{findPlayerName(queue, 3)}</span> >
-	<span class:active={active_number == 4}>{findPlayerName(queue, 4)}</span>
+	{#each [...Array(num_players + 1).keys()].slice(1) as num, i}
+		<span class:active={active_number == num}>{player_names[num - 1]}</span>
+		{num == num_players ? '' : '> '}
+	{/each}
 </div>
 <div class="button-div" class:game-over={game_active == 0}>
 	<button on:click={correctAnswer} class="correct-button">Correct</button>
@@ -308,7 +315,7 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td class:active={direct_player == 1}>{player1}</td>
+			<td class:active={direct_player == 1}>{player_names[0]}</td>
 			<td>{player_pts[0]}</td>
 			<td>{player_directs[0]} / {player_direct_attempts[0]}</td>
 			<td>{player_stl[0]}</td>
@@ -316,7 +323,7 @@
 			<td>{player_xs[0]}</td>
 		</tr>
 		<tr>
-			<td class:active={direct_player == 2}>{player2}</td>
+			<td class:active={direct_player == 2}>{player_names[1]}</td>
 			<td>{player_pts[1]}</td>
 			<td>{player_directs[1]} / {player_direct_attempts[1]}</td>
 			<td>{player_stl[1]}</td>
@@ -324,7 +331,7 @@
 			<td>{player_xs[1]}</td>
 		</tr>
 		<tr>
-			<td class:active={direct_player == 3}>{player3}</td>
+			<td class:active={direct_player == 3}>{player_names[2]}</td>
 			<td>{player_pts[2]}</td>
 			<td>{player_directs[2]} / {player_direct_attempts[2]}</td>
 			<td>{player_stl[2]}</td>
@@ -332,7 +339,7 @@
 			<td>{player_xs[2]}</td>
 		</tr>
 		<tr>
-			<td class:active={direct_player == 4}>{player4}</td>
+			<td class:active={direct_player == 4}>{player_names[3]}</td>
 			<td>{player_pts[3]}</td>
 			<td>{player_directs[3]} / {player_direct_attempts[3]}</td>
 			<td>{player_stl[3]}</td>
