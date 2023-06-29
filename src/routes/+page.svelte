@@ -1,4 +1,6 @@
 <script>
+	import UploadCSV from 'upload-csv-svelte';
+
 	let player1 = 'Alice';
 	let player2 = 'Bob';
 	let player3 = 'Carol';
@@ -28,6 +30,8 @@
 	let total_questions = num_rounds * num_players * questions_per_player;
 	let game_active = -1;
 	let disabled = false;
+
+	let questions = [];
 
 	function setActivePlayer() {
 		active_player = queue[active_number - 1];
@@ -351,6 +355,11 @@
 			</tr>
 		</tbody>
 	</table>
+	{#if questions}
+		<div class="question-display-area">
+			{questions.length > 0 ? questions[question_number] : ''}
+		</div>
+	{/if}
 </div>
 <div class="game-settings" {disabled}>
 	<div class="player-name-parameters">
@@ -368,6 +377,9 @@
 			<span>Questions per Player: </span>
 			<input type="number" bind:value={questions_per_player} min="1" max="10" />
 		</div>
+		<UploadCSV
+			onUpload={(csvData) => {questions = csvData}}
+		/>
 		<button on:click={startGame} class="start-game-button">Start Game</button>
 	</div>
 </div>
@@ -441,7 +453,7 @@
 		padding: 40px;
 		border-radius: 8px;
 		width: 250px;
-		box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+		/* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
 	}
 
 	.button-div {
@@ -531,7 +543,7 @@
 		transition: filter 0.5s, opacity 0.5s ease-in-out;
 	}
 
-	.settings[disabled = "true"] {
+	.settings[disabled='true'] {
 		opacity: 0.5;
 		filter: grayscale(100%) blur(2px);
 		pointer-events: none;
