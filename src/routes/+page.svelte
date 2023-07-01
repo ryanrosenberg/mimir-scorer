@@ -24,6 +24,7 @@
 	let questions_per_player = 3;
 	let total_questions = num_rounds * num_players * questions_per_player;
 	let game_active = 1;
+	let disabled = false;
 
 	let player_pts = Array(num_players).fill(0);
 	let player_bas = Array(num_players).fill(0);
@@ -39,13 +40,6 @@
 	let active_player = 1;
 
 	let round_player_text = 'Round 1 Player 1';
-
-	let num_rounds = 5;
-	let num_players = 4;
-	let questions_per_player = 3;
-	let total_questions = num_rounds * num_players * questions_per_player;
-	let game_active = -1;
-	let disabled = false;
 
 	let questions = [];
 	let show_button = 'Show Question';
