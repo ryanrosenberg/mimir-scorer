@@ -24,7 +24,7 @@
 	let questions_per_player = 3;
 	let total_questions = num_rounds * num_players * questions_per_player;
 	let game_active = 1;
-	let disabled = false;
+	let disabled = true;
 
 	let player_pts = Array(num_players).fill(0);
 	let player_bas = Array(num_players).fill(0);
@@ -350,7 +350,7 @@
 
 	function startGame() {
 		game_active = 1;
-		disabled = true;
+		disabled = false;
 	}
 
 	function endGame() {
